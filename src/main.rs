@@ -32,14 +32,28 @@ impl Plugin for HelloPlugin {
     }
 }
 
-struct CountUp(Timer, f32, i32);
+struct CountUp {
+    timer: Timer,
+    frequency: f32,
+    count: i32,
+}
+
+impl Default for CountUp {
+    fn default() -> Self {
+        CountUp {
+            timer: Timer::from_seconds(0.0, true),
+            count: 0,
+            frequency: 1.0,
+        }
+    }
+}
 
 fn update_counters(time: Res<Time>, mut count_up: ResMut<CountUp>) {
-    count_up.0.tick(time.delta_seconds());
-    if count_up.0.just_finished() {
-        println!("ticking counter ({})", count_up.2);
-        count_up.2 += 1;
-        count_up.0 = Timer::from_seconds(1.0 / count_up.1, true);
+    count_up.timer.tick(time.delta_seconds());
+    if count_up.timer.just_finished() {
+        println!("ticking counter ({}) with freq {}", count_up.count, count_up.frequency);
+        count_up.count += 1;
+        count_up.timer = Timer::from_seconds(1.0 / count_up.frequency, true);
     }
 }
 
@@ -47,7 +61,7 @@ struct CounterPlugin;
 
 impl Plugin for CounterPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_resource(CountUp(Timer::from_seconds(1.0, true), 2.5, 0))
+        app.add_resource(CountUp{frequency: 2.5, ..Default::default()})
             .add_system(update_counters.system());
     }
 }
