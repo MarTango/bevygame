@@ -61,7 +61,9 @@ struct CounterPlugin;
 
 impl Plugin for CounterPlugin {
     fn build(&self, app: &mut AppBuilder) {
-        app.add_resource(CountUp{frequency: 2.5, ..Default::default()})
+        app
+            .add_resource(CountUp{frequency: 2.5, timer: Timer::from_seconds(0.0, true), ..Default::default()})
+            .add_resource(CountUp{frequency: 0.7, timer: Timer::from_seconds(0.0, true), ..Default::default()})
             .add_system(update_counters.system());
     }
 }
